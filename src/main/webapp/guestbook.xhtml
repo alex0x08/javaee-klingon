@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<f:view xmlns:jsf="jakarta.faces"
+        xmlns:ui="jakarta.faces.facelets"
+        xmlns:f="jakarta.faces.core"
+        xmlns:h="jakarta.faces.html"
+        xmlns:p="jakarta.faces.passthrough"
+        locale="#{i18n.locale}">
+    <h:head>
+        <title>0x08 Experiments: KLINGON</title>
+        <meta http-equiv="content-type" content="text/html;charset=UTF-8"/>
+        <!-- enough for demo, but please copy locally for prod -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous"/>
+        <style>
+            @font-face {
+                font-family: 'Klingon';
+                src: url("#{resource['Klingon-pIqaD-Mandel.ttf']}");
+            }
+            @font-face {
+                font-family: 'Rlyeh';
+                src: url("#{resource['Rlyehian.ttf']}");
+            }
+            .klingon {
+                font-family: 'Klingon';
+            }
+            .rlyeh {
+                font-family: 'Rlyeh';
+            }
+            body {
+                min-height: 98vh;
+                display: flex;
+                flex-direction: column;
+            }
+            footer{
+                margin-top: auto;
+            }
+            .msg {
+                display: block;
+                color: red;
+            }
+            form{
+                width: 50em;
+            }
+            label, textarea {
+                display: block;
+            }
+            .actBtn {
+                font-size:small;
+                padding:0;
+                margin-left:1em;
+            }
+        </style>
+        <!-- here we toggle 'global' i18n font -->
+        <h:outputStylesheet name="style-klingon.css"
+                            rendered="#{i18n.locale.variant eq 'KLINGON'}"/>
+        <h:outputStylesheet name="style-rlyeh.css"
+                            rendered="#{i18n.locale.variant eq 'RLYEH'}"/>
+    </h:head>
+    <h:body styleClass="text-bg-dark">
+        <!-- navigation bar -->
+        <nav class="navbar navbar-expand-md navbar-dark bg-dark">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">0x08</a>
+                <button class="navbar-toggler" type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#navbarCollapse"
+                        aria-controls="navbarCollapse"
+                        aria-expanded="false"
+                        aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"/>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarCollapse">
+                    <ul class="navbar-nav ms-auto mb-2 mb-md-0">
+
+                    </ul>
+
+                    <h:form styleClass="d-flex"
+                            rendered="#{not empty auth.principal and auth.principal.name != 'UNAUTHENTICATED' }">
+                        <div class="me-auto">
+                        </div>
+                        <div class="me-2 align-self-center">
+                            <h:outputFormat value="#{msgs['auth.hello.title']}">
+                                <f:param value="#{auth.principal.name}"/>
+                            </h:outputFormat>
+                        </div>
+                        <h:commandButton
+                                value="#{msgs['auth.form.btn.logout']}"
+                                action="#{auth.logout}"
+                                title="#{msgs['gb.auth.logout.title']}"
+                                styleClass="btn btn-outline-info">
+                        </h:commandButton>
+                    </h:form>
+
+                    <h:form styleClass="d-flex"
+                            rendered="#{empty param['login'] and (empty auth.principal or auth.principal.name == 'UNAUTHENTICATED') }">
+                        <div class="me-auto">
+                        </div>
+                        <div class="me-2 align-self-center">
+                            <h:outputText value="#{msgs['gb.auth.more.title']}"/>
+                        </div>
+                        <h:button value="#{msgs['auth.form.btn.login']}"
+                                  outcome="guestbook?login=true"
+                                  styleClass="btn btn-outline-success"/>
+                    </h:form>
+                </div>
+            </div>
+        </nav>
+
+        <!-- main block -->
+        <main class="flex-shrink-0">
+            <div class="container">
+                <!-- auth form, opened if ?login=true found in request params -->
+                <h:panelGroup layout="block"
+                              styleClass="d-flex justify-content-center"
+                              rendered="#{param['login']}"
+                              style="padding-top:1em;">
+                    <h:panelGroup layout="block"
+                                  styleClass="card text-primary bg-dark"
+                                  style="width: 28em;">
+                        <div class="card-body">
+                            <h:form enctype="multipart/form-data"
+                                    prependId="false"
+                                    style="width: 20em;">
+                                <h:inputHidden
+                                        name="login" value="#{true}" id="login"/>
+                                <h1 class="h3 mb-3 fw-normal">
+                                    <h:outputText value="#{msgs['auth.form.title']}"/>
+                                </h1>
+                                <p>
+                                    <h:messages globalOnly="true"
+                                                infoClass="msg" errorClass="msg"/>
+                                </p>
+
+                                <div class="form-floating mb-3">
+                                    <h:inputText id="f_username"
+                                                 size="20"
+                                                 styleClass="form-control text-bg-dark"
+                                                 p:placeholder="admin@test.org"
+                                                 value="#{auth.form.login}"/>
+                                    <h:message for="f_username"
+                                               errorClass="invalid-feedback"/>
+                                    <h:outputLabel for="f_username">
+                                        <h:outputText
+                                                value="#{msgs['auth.form.input.username']}"/>
+                                    </h:outputLabel>
+                                </div>
+                                <div class="form-floating mb-3">
+                                    <h:inputSecret id="f_password"
+                                                   styleClass="form-control text-bg-dark"
+                                                   size="20"
+                                                   p:placeholder="admin"
+                                                   value="#{auth.form.password}"/>
+                                    <h:message for="f_password"
+                                               errorClass="invalid-feedback"/>
+                                    <h:outputLabel for="f_password">
+                                        <h:outputText
+                                                value="#{msgs['auth.form.input.password']}"/>
+                                    </h:outputLabel>
+                                </div>
+
+                                <div class="btn-group"
+                                     role="group"
+                                     aria-label="Auth buttons">
+                                    <!-- login button -->
+                                    <h:button type="submit" class="btn btn-primary"
+                                              action="#{auth.login}"
+                                              value="#{msgs['auth.form.btn.login']}"/>
+                                    <!-- cancel button -->
+                                    <h:button value="#{msgs['auth.form.btn.cancel']}"
+                                              styleClass="btn btn-secondary"
+                                              outcome="guestbook"/>
+                                </div>
+                            </h:form>
+                        </div>
+                    </h:panelGroup>
+                </h:panelGroup>
+
+                <!-- main block for guestbook -->
+                <h:panelGroup layout="block"
+                              rendered="#{empty param['login']}">
+                    <div class="p-5 mb-4 rounded-3">
+                        <div class="container-fluid py-5">
+                            <h1 class="display-5 fw-bold">
+                                My mad 'enterprise level' guestbook
+                            </h1>
+                            <p class="col-md-8 fs-4">
+                                <h:outputText value="#{msgs['gb.please.select']}"/>
+                            </p>
+                            <!-- a dropdown menu with supported locales -->
+                            <h:form>
+                                <h:selectOneMenu styleClass="form-select" style="width: 12em;"
+                                                 value="#{i18n.language}"
+                                                 onchange="submit()">
+                                    <f:selectItem itemValue="en-US"
+                                                  itemLabel="English"/>
+                                    <!-- KLINGON! -->
+                                    <f:selectItem itemValue="en-US-KLINGON"
+                                                  itemLabel="Klingon"/>
+                                    <!-- and R'lyeh! -->
+                                    <f:selectItem itemValue="en-US-RLYEH"
+                                                  itemLabel="Rlyeh"/>
+                                </h:selectOneMenu>
+                            </h:form>
+                            <p style="font-size:small;">
+                                <h:outputText value="#{gbook.randomKlingonPhrase}"/>
+                            </p>
+                        </div>
+                    </div>
+                </h:panelGroup>
+
+                <!-- add new message form -->
+                <h:form enctype="multipart/form-data"
+                        rendered="#{param['login'] == null }"
+                        prependId="false"
+                        styleClass="row g-2 w-100">
+                    <div class="col-md-8">
+                        <p>
+                            <h:messages globalOnly="true"
+                                        infoClass="msg"
+                                        errorClass="msg"/>
+                        </p>
+                        <h:panelGroup layout="block"
+                                      styleClass="row mb-3"
+                                      rendered="#{empty param['login'] and (empty auth.principal or auth.principal.name == 'UNAUTHENTICATED') }">
+                            <h:outputLabel for="f_author"
+                                           styleClass="col-sm-2 col-form-label"
+                                           value="#{msgs['newPost.form.author']}"/>
+                            <div class="col-sm-10">
+                                <h:inputText id="f_author"
+                                             value="#{gbook.current.author}"
+                                             size="20"
+                                             p:placeholder="me@company.org"
+                                             styleClass="form-control"
+                                             label="#{msgs['newPost.form.author']}"/>
+                            </div>
+                            <h:message for="f_author" errorClass="msg"/>
+                        </h:panelGroup>
+                        <div class="row mb-3">
+                            <h:outputLabel
+                                    for="f_title"
+                                    styleClass="col-sm-2 col-form-label"
+                                    value="#{msgs['newPost.form.title']}"/>
+                            <div class="col-sm-10">
+                                <h:inputText id="f_title"
+                                             value="#{gbook.current.title}"
+                                             size="65"
+                                             styleClass="form-control"
+                                             p:placeholder="#{msgs['newPost.form.placeholder']}"
+                                             label="#{msgs['newPost.form.title']}"/>
+                                <h:messages for="f_title" errorClass="msg"/>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <h:outputLabel
+                                    for="f_message"
+                                    styleClass="col-sm-2 col-form-label"
+                                    value="#{msgs['newPost.form.message']}"/>
+                            <div class="col-sm-10">
+                                <h:inputTextarea id="f_message"
+                                                 cols="80"
+                                                 rows="6"
+                                                 value="#{gbook.current.message}"
+                                                 styleClass="form-control"
+                                                 p:placeholder="#{msgs['newPost.form.message.placeholder']}"
+                                                 label="#{msgs['newPost.form.message']}"/>
+                            </div>
+                            <h:message for="f_message" errorClass="msg"/>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-sm-8 offset-sm-2">
+                                <div class="form-check">
+                                    <!--
+                                     a checkbox to enable transcoder for Klingon
+                                     -->
+                                    <h:selectBooleanCheckbox id="f_translateKlingon"
+                                                             styleClass="form-check-input"
+                                                             value="#{gbook.current.translateKlingon}"/>
+                                    <h:outputLabel for="f_translateKlingon"
+                                                   styleClass="form-check-label"
+                                                   value="#{msgs['newPost.form.translateKlingon']}"/>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- save button -->
+                    <div class="col-md-4 mt-4">
+                        <h:commandButton value="#{msgs['newPost.form.btn.send']}"
+                                         styleClass="btn btn-primary"
+                                         action="#{gbook.save}">
+                        </h:commandButton>
+                        <input type="reset" class="btn btn-secondary"
+                               value="#{msgs['newPost.form.btn.reset']}"/>
+                    </div>
+                </h:form>
+
+                <!-- renders list of guestbook messages -->
+                <h:panelGroup layout="block"
+                              styleClass="row"
+                              rendered="#{empty param['login']}">
+                    <ui:repeat value="#{gbook.fetchRecords()}" var="record">
+                        <div class="row card text-bg-dark mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <h:outputText value="#{record.title}"/>
+                                </h5>
+                                <h6 class="card-subtitle mb-2 text-muted">
+                                    <h:outputText value="#{record.author}"/>
+                                </h6>
+                                <p class="card-text">
+                                    <h:outputText value="#{record.message}"
+                                                  styleClass="#{record.translateKlingon ? 'klingon' : ''}"/>
+                                </p>
+                            </div>
+                            <div class="card-footer">
+                                At
+                                <!-- note on used stardate converter -->
+                                <h:outputText value="#{record.createdAt}"
+                                              converter="stardateConverter"/>
+                            </div>
+                        </div>
+                    </ui:repeat>
+                </h:panelGroup>
+            </div>
+        </main>
+        <footer class="mt-auto text-white-50">
+            <div class="float-end p-2" style="font-size:small;">
+                Created by Alex Chernyshev, 2021 @alex0x08
+                <a href="mailto:alex3.145@gmail.com">alex3.145@gmail.com</a>
+            </div>
+        </footer>
+    </h:body>
+</f:view>
+</html>

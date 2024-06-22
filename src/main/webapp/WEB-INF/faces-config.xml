@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<faces-config xmlns="https://jakarta.ee/xml/ns/jakartaee"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
+                https://jakarta.ee/xml/ns/jakartaee/web-facesconfig_4_0.xsd"
+              version="4.0">
+    <application>
+      <!--  Supported locales.
+            Note that word 'KLINGON' used as variant
+            see https://docs.oracle.com/javase/8/docs/api/java/util/Locale.html
+            for more details on Java locales
+      -->
+      <locale-config>
+         <default-locale>en_US</default-locale>
+         <supported-locale>en_US_KLINGON</supported-locale>
+          <supported-locale>en_US_RLYEH</supported-locale>
+      </locale-config>
+       <resource-bundle>
+           <!--
+            Note that 'base name' points to specific class, not to .properties file
+           -->
+         <base-name>com.Ox08.experiments.kligon.KlingonedResourceBundle</base-name>
+         <var>msgs</var>
+      </resource-bundle>
+  </application>
+  
+</faces-config>

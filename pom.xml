@@ -1,0 +1,130 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.Ox08.experiments</groupId>
+    <artifactId>kligonweb</artifactId>
+    <version>1.0.1-RELEASE</version>
+    <packaging>war</packaging>
+    <name>Ox08 Experiments: Klingon Web</name>
+    <description>Alexs experiments: Klingon</description>
+    <url>https://x0x08.site</url>
+    <inceptionYear>2022</inceptionYear>
+    <developers>
+        <developer>
+            <name>Alex Chernyshev</name>
+            <timezone>GMT+3</timezone>
+        </developer>
+    </developers>
+    <organization>
+        <name>0x08 Software</name>
+        <url>https://x0x08.site</url>
+    </organization>
+    <licenses>
+        <license>
+            <name>GPL-v3.0</name>
+            <url>http://www.gnu.org/licenses/gpl-3.0.txt</url>
+        </license>
+    </licenses>
+    
+    <properties>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <failOnMissingWebXml>false</failOnMissingWebXml>
+    </properties>
+    
+    <dependencies>
+        
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derby</artifactId>
+            <!--
+                Do not upgrade!
+                Clashes with openliberty embedded XA Datasource support
+                see: https://github.com/OpenLiberty/open-liberty/issues/16968
+            -->
+            <version>10.14.2.0</version>
+            <scope>provided</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>jakarta.platform</groupId>
+            <artifactId>jakarta.jakartaee-web-api</artifactId>
+            <version>10.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <pluginRepositories>
+    </pluginRepositories>
+    
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+                <configuration>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.4.0</version>
+                <configuration>
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
+                </configuration>
+            </plugin>
+       
+            <plugin>
+                <artifactId>maven-install-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+                           
+                           
+            <!-- Enable liberty-maven-plugin -->
+            <plugin>
+                <groupId>io.openliberty.tools</groupId>
+                <artifactId>liberty-maven-plugin</artifactId>
+                <version>3.10.3</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <runtimeArtifact>
+                        <groupId>io.openliberty</groupId>
+                        <artifactId>openliberty-jakartaee10</artifactId>
+                        <version>24.0.0.6</version>
+                        <type>zip</type>
+                    </runtimeArtifact>
+
+                    <!--
+                    Usually best to add configuration at the plugin level
+                     rather than trying to configure particular executions
+                     -->
+                    <copyDependencies>
+                        <dependencyGroup>
+                            <!-- Relative to server config directory -->
+                            <location>lib/global/jdbc</location>
+                            <stripVersion>true</stripVersion>
+                            <dependency>
+                                <groupId>org.apache.derby</groupId>
+                                <artifactId>derby</artifactId>
+                            </dependency>
+                        </dependencyGroup>
+                    </copyDependencies>
+                    
+                    <serverName>nibiru</serverName>
+                    <features>
+                        <acceptLicense>true</acceptLicense>
+                        <feature>jakartaee-10.0</feature>
+                    </features>
+                    <looseApplication>true</looseApplication>
+                    <deployPackages>all</deployPackages>
+                </configuration>
+
+            </plugin>
+        </plugins>
+    </build>
+</project>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server description="Cahf ah nafl mglw'nafh hh'
+ahor syha'h ah'legeth,
+ng llll or'azath syha'hnahh n'ghftephai n'gha ahornah ah'mglw'nafh">
+
+    <!-- Enable features -->
+    <featureManager>
+        <feature>jakartaee-10.0</feature>
+        <feature>appAuthentication-3.0</feature>
+        <feature>persistence-3.1</feature>
+    </featureManager>
+
+    <dataSource id="DefaultDataSource">
+        <jdbcDriver libraryRef="phlegethLib"/>
+        <properties.derby.embedded databaseName="shuggDB" createDatabase="create"/>
+        <containerAuthData user="tharanak" password="y'hah"/>
+    </dataSource>
+
+    <library id="phlegethLib">
+        <file name="${server.config.dir}/lib/global/jdbc/derby.jar"/>
+        <file name="${server.config.dir}/lib/global/jdbc/derbyshared.jar"/>
+    </library>
+
+    <basicRegistry id="basic" realm="WebRealm">
+        <user name="admin@test.org"
+              password="admin"/>
+        <group name="admin">
+            <member name="admin"/>
+        </group>
+    </basicRegistry>
+
+
+    <!--
+        To access this server from a remote client
+        add a host attribute to the following element, e.g. host="*"
+    -->
+    <httpEndpoint id="defaultHttpEndpoint"
+                  httpPort="9080"
+                  httpsPort="9443"/>
+
+    <!-- Automatically expand WAR files and EAR files -->
+    <applicationManager autoExpand="true"/>
+
+    <!-- Default SSL configuration enables trust for default certificates
+         from the Java runtime
+     -->
+    <ssl id="defaultSSLConfig" trustDefaultCerts="true"/>
+
+</server>
